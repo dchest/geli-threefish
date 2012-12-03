@@ -1,3 +1,29 @@
+/*-
+* Copyright (c) 2012 Dmitry Chestnykh <dmitry@codingrobots.com>
+* All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+* 1. Redistributions of source code must retain the above copyright
+*    notice, this list of conditions and the following disclaimer.
+* 2. Redistributions in binary form must reproduce the above copyright
+*    notice, this list of conditions and the following disclaimer in the
+*    documentation and/or other materials provided with the distribution.
+*
+* THIS SOFTWARE IS PROVIDED BY THE AUTHORS AND CONTRIBUTORS ``AS IS'' AND
+* ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE
+* FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+* DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+* OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+* HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+* LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+* SUCH DAMAGE.
+*/
+
 #include "threefish.h"
 
 #if defined(__i386__) || defined(__x86_64__)
@@ -42,6 +68,7 @@ static const int RotK[8][4] = {
 static inline void
 expand_key(uint64_t ks[9], const uint8_t k[64])
 {
+
 	ks[0] = LOAD64_LE(&k[ 0]);
 	ks[1] = LOAD64_LE(&k[ 8]);
 	ks[2] = LOAD64_LE(&k[16]);
@@ -201,14 +228,14 @@ clear_memory(void *p, size_t len)
 }
 
 void
-threefish_encrypt(const uint8_t k[64], uint64_t t0, const uint8_t *in,
+threefish_encrypt(const uint8_t key[64], uint64_t sectornum, const uint8_t *in,
 		size_t inlen, uint8_t *out)
 {
 	uint64_t ks[9], ts[3];
 
-	expand_key(ks, k);
+	expand_key(ks, key);
 
-	ts[0] = t0;
+	ts[0] = sectornum;
 	ts[1] = 0;	/* 2nd part of tweak is block counter */
 
 	while (inlen > 0) {
@@ -222,14 +249,14 @@ threefish_encrypt(const uint8_t k[64], uint64_t t0, const uint8_t *in,
 }
 
 void
-threefish_decrypt(const uint8_t k[64], uint64_t t0, const uint8_t *in,
+threefish_decrypt(const uint8_t key[64], uint64_t sectornum, const uint8_t *in,
 		size_t inlen, uint8_t *out)
 {
 	uint64_t ks[9], ts[3];
 
-	expand_key(ks, k);
+	expand_key(ks, key);
 
-	ts[0] = t0;
+	ts[0] = sectornum;
 	ts[1] = 0;	/* 2nd part of tweak is block counter */
 
 	while (inlen > 0) {
