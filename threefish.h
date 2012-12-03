@@ -47,7 +47,7 @@ void threefish_encrypt(const uint8_t[64], const uint64_t, const uint8_t *,
 /*
  * threefish_encrypt(key, sectornum, in, inlen, out)
  * 
- * Encrypt data of length inlen from in to out using 64-byte key
+ * Decrypt data of length inlen from in to out using 64-byte key
  * and 64-bit sector number. Data length must be a multiple of 64.
  */
 void threefish_decrypt(const uint8_t[64], const uint64_t, const uint8_t *,
