@@ -65,8 +65,8 @@ static const int RotK[8][4] = {
 	{  8, 35, 56, 22 }
 };
 
-static inline void
-expand_key(uint64_t ks[9], const uint8_t k[64])
+void
+threefish_expand_key(uint64_t ks[9], const uint8_t k[64])
 {
 
 	ks[0] = LOAD64_LE(&k[ 0]);
@@ -85,9 +85,9 @@ expand_key(uint64_t ks[9], const uint8_t k[64])
 #define ROTR64(x, n) (((x) >> (n)) | ((x) << (64 - (n))))
 
 /* Inlining this function makes it 3x slower. */
-static void __attribute__((noinline))
-encrypt_block(const uint64_t ks[9], const uint64_t ts[3], const uint8_t in[64],
-		uint8_t out[64])
+void __attribute__((noinline))
+threefish_encrypt_block(const uint64_t ks[9], const uint64_t ts[3],
+		const uint8_t in[64], uint8_t out[64])
 {
 	uint64_t x0 = LOAD64_LE(&in[ 0]);
 	uint64_t x1 = LOAD64_LE(&in[ 8]);
@@ -151,9 +151,9 @@ encrypt_block(const uint64_t ks[9], const uint64_t ts[3], const uint8_t in[64],
 }
 
 /* Inlining this function makes it 3x slower. */
-static void __attribute__((noinline))
-decrypt_block(const uint64_t ks[9], const uint64_t ts[3], const uint8_t in[64],
-		uint8_t out[64])
+void __attribute__((noinline))
+threefish_decrypt_block(const uint64_t ks[9], const uint64_t ts[3],
+		const uint8_t in[64], uint8_t out[64])
 {
 	uint64_t x0 = LOAD64_LE(&in[ 0]);
 	uint64_t x1 = LOAD64_LE(&in[ 8]);
@@ -271,7 +271,7 @@ threefish_decrypt(const uint8_t key[64], uint64_t sectornum, const uint8_t *in,
 
 
 
-#if 1
+#if 0
 
 /* Test */
 #include <stdio.h>

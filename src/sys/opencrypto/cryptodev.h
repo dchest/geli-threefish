@@ -99,6 +99,7 @@
 #define AES_BLOCK_LEN		RIJNDAEL128_BLOCK_LEN
 #define CAMELLIA_BLOCK_LEN	16
 #define EALG_MAX_BLOCK_LEN	AES_BLOCK_LEN /* Keep this updated */
+#define THREEFISH_BLOCK_LEN	64
 
 #define	CRYPTO_ALGORITHM_MIN	1
 #define CRYPTO_DES_CBC		1
@@ -124,7 +125,8 @@
 #define	CRYPTO_SHA2_512_HMAC	20
 #define CRYPTO_CAMELLIA_CBC	21
 #define	CRYPTO_AES_XTS		22
-#define	CRYPTO_ALGORITHM_MAX	22 /* Keep updated - see below */
+#define CRYPTO_THREEFISH	23 /* Threefish tweak-counter mode, swapped */
+#define	CRYPTO_ALGORITHM_MAX	23 /* Keep updated - see below */
 
 /* Algorithm flags */
 #define	CRYPTO_ALG_FLAG_SUPPORTED	0x01 /* Algorithm is supported */

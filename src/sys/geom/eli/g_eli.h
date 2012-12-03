@@ -53,15 +53,6 @@
 #include <sys/md5.h>
 #endif
 
-/*
- * CRYPTO_* algorithm identifiers come from opencrypto/cryptodev.h.
- * We include Threefish along with geli sources instead of putting it
- * to opencrypto. To avoid future collisions, we prefix our identifier
- * with _, and use a pretty big number for it (63, currently cryptodev.h
- * declares algorithms up to 22; also 0x3F for Theefish looks nice.).
- */
-#define _CRYPTO_THREEFISH 0x3F
-
 #define	G_ELI_CLASS_NAME	"ELI"
 #define	G_ELI_MAGIC		"GEOM::ELI"
 #define	G_ELI_SUFFIX		".eli"
@@ -411,7 +402,7 @@ g_eli_str2ealgo(const char *name)
 	else if (strcasecmp("3des-cbc", name) == 0)
 		return (CRYPTO_3DES_CBC);
 	else if (strcasecmp("threefish", name) == 0)
-		return (_CRYPTO_THREEFISH);
+		return (CRYPTO_THREEFISH);
 	return (CRYPTO_ALGORITHM_MIN - 1);
 }
 
@@ -451,7 +442,7 @@ g_eli_algo2str(u_int algo)
 		return ("CAMELLIA-CBC");
 	case CRYPTO_3DES_CBC:
 		return ("3DES-CBC");
-	case _CRYPTO_THREEFISH:
+	case CRYPTO_THREEFISH:
 		return ("Threefish");
 	case CRYPTO_MD5_HMAC:
 		return ("HMAC/MD5");
@@ -554,7 +545,7 @@ g_eli_keylen(u_int algo, u_int keylen)
 		if (keylen == 0 || keylen == 192)
 			return (192);
 		return (0);
-	case _CRYPTO_THREEFISH:
+	case CRYPTO_THREEFISH:
 		if (keylen == 0 || keylen == 512)
 			return (512);
 		return (0);

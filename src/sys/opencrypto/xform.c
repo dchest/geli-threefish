@@ -58,6 +58,7 @@ __FBSDID("$FreeBSD$");
 #include <opencrypto/deflate.h>
 #include <opencrypto/rmd160.h>
 #include <opencrypto/skipjack.h>
+#include <opencrypto/threefish.h>
 
 #include <sys/md5.h>
 
@@ -73,6 +74,7 @@ static	int skipjack_setkey(u_int8_t **, u_int8_t *, int);
 static	int rijndael128_setkey(u_int8_t **, u_int8_t *, int);
 static	int aes_xts_setkey(u_int8_t **, u_int8_t *, int);
 static	int cml_setkey(u_int8_t **, u_int8_t *, int);
+static	int threefish_setkey(u_int8_t **, u_int8_t *, int);
 
 static	void null_encrypt(caddr_t, u_int8_t *);
 static	void des1_encrypt(caddr_t, u_int8_t *);
@@ -83,6 +85,7 @@ static	void skipjack_encrypt(caddr_t, u_int8_t *);
 static	void rijndael128_encrypt(caddr_t, u_int8_t *);
 static	void aes_xts_encrypt(caddr_t, u_int8_t *);
 static	void cml_encrypt(caddr_t, u_int8_t *);
+static	void threefish_encrypt(caddr_t, u_int8_t *);
 
 static	void null_decrypt(caddr_t, u_int8_t *);
 static	void des1_decrypt(caddr_t, u_int8_t *);
@@ -93,6 +96,7 @@ static	void skipjack_decrypt(caddr_t, u_int8_t *);
 static	void rijndael128_decrypt(caddr_t, u_int8_t *);
 static	void aes_xts_decrypt(caddr_t, u_int8_t *);
 static	void cml_decrypt(caddr_t, u_int8_t *);
+static	void threefish_decrypt(caddr_t, u_int8_t *);
 
 static	void null_zerokey(u_int8_t **);
 static	void des1_zerokey(u_int8_t **);
@@ -103,8 +107,10 @@ static	void skipjack_zerokey(u_int8_t **);
 static	void rijndael128_zerokey(u_int8_t **);
 static	void aes_xts_zerokey(u_int8_t **);
 static	void cml_zerokey(u_int8_t **);
+static	void threefish_zerokey(u_int8_t **);
 
 static	void aes_xts_reinit(caddr_t, u_int8_t *);
+static	void threefish_reinit(caddr_t, u_int8_t *);
 
 static	void null_init(void *);
 static	int null_update(void *, u_int8_t *, u_int16_t);
@@ -223,6 +229,16 @@ struct enc_xform enc_xform_camellia = {
 	cml_setkey,
 	cml_zerokey,
 	NULL
+};
+
+struct enc_xform enc_xform_threefish = {
+	CRYPTO_THREEFISH, "Threefish",
+	THREEFISH_BLOCK_LEN, 64, 64,
+	threefish_encrypt,
+	threefish_decrypt,
+	threefish_setkey,
+	threefish_zerokey,
+	threefish_reinit
 };
 
 /* Authentication instances */
@@ -710,6 +726,88 @@ static void
 cml_zerokey(u_int8_t **sched)
 {
 	bzero(*sched, sizeof(camellia_ctx));
+	free(*sched, M_CRYPTO_DATA);
+	*sched = NULL;
+}
+
+/*
+ * Threefish (with swapped encryption/decryption.
+ */
+struct threefish_ctx {
+	u_int64_t ks[9];
+	u_int64_t ts[3];
+};
+
+void
+threefish_reinit(caddr_t key, u_int8_t *iv)
+{
+	struct threefish_ctx *ctx = (struct threefish_ctx *)key;
+
+	ctx->ts[0] = (((u_int64_t)(iv[0])) |
+			((u_int64_t)(iv[1])<< 8) |
+			((u_int64_t)(iv[2])<<16) |
+			((u_int64_t)(iv[3])<<24) |
+			((u_int64_t)(iv[4])<<32) |
+			((u_int64_t)(iv[5])<<40) |
+			((u_int64_t)(iv[6])<<48) |
+			((u_int64_t)(iv[7])<<56));
+	ctx->ts[1] = 0;
+}
+
+static void
+threefish_crypt(struct threefish_ctx *ctx, u_int8_t *data, u_int do_encrypt)
+{
+
+	ctx->ts[2] = ctx->ts[0] ^ ctx->ts[1];
+
+	/*
+	 * IMPORTANT NOTE: encryption and decryption are swapped for better
+	 * performance of decryption.
+	 */
+	if (do_encrypt)
+		threefish_decrypt_block(ctx->ks, ctx->ts, data, data);
+	else
+		threefish_encrypt_block(ctx->ks, ctx->ts, data, data);
+
+	/* Increment block counter */
+	ctx->ts[1]++;
+}
+
+void
+threefish_encrypt(caddr_t key, u_int8_t *data)
+{
+	threefish_crypt((struct threefish_ctx *)key, data, 1);
+}
+
+void
+threefish_decrypt(caddr_t key, u_int8_t *data)
+{
+	threefish_crypt((struct threefish_ctx *)key, data, 0);
+}
+
+int
+threefish_setkey(u_int8_t **sched, u_int8_t *key, int len)
+{
+	struct threefish_ctx *ctx;
+
+	if (len != 64)
+		return EINVAL;
+
+	*sched = malloc(sizeof(struct threefish_ctx), M_CRYPTO_DATA,
+	    M_NOWAIT | M_ZERO);
+	if (*sched == NULL)
+		return ENOMEM;
+	ctx = (struct threefish_ctx *)*sched;
+
+	threefish_expand_key(ctx->ks, key);
+
+	return 0;
+}
+
+void
+threefish_zerokey(u_int8_t **sched)
+{
+	bzero(*sched, sizeof(struct threefish_ctx));
 	free(*sched, M_CRYPTO_DATA);
 	*sched = NULL;
 }

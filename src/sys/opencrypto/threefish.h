@@ -63,4 +63,16 @@ void threefish_decrypt(const uint8_t[64], const uint64_t, const uint8_t *,
 #define fishthree_encrypt threefish_decrypt
 #define fishthree_decrypt threefish_encrypt
 
+/*
+ * Low-level operations.
+ */
+
+void threefish_expand_key(uint64_t[9], const uint8_t[64]);
+
+void threefish_encrypt_block(const uint64_t[9], const uint64_t[3],
+		const uint8_t[64], uint8_t[64]);
+
+void threefish_decrypt_block(const uint64_t[9], const uint64_t[3],
+		const uint8_t[64], uint8_t[64]);
+
 #endif /* !_THREEFISH_H_ */
