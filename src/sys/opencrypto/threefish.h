@@ -28,8 +28,6 @@
 #define _THREEFISH_H_
 
 #ifdef _KERNEL
-#include <sys/cdefs.h>
-#include <sys/param.h>
 #include <sys/types.h>
 #else
 #include <stddef.h>

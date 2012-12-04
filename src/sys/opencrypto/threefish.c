@@ -24,33 +24,9 @@
 * SUCH DAMAGE.
 */
 
+#include <sys/endian.h>
+
 #include "threefish.h"
-
-#if defined(__i386__) || defined(__x86_64__)
-
-# define LOAD64_LE(p)		(*(uint64_t *)(p))
-# define STORE64_LE(p, v)	do { (*(uint64_t *)(p)) = (v); } while(0)
-
-#else
-
-# define LOAD64_LE(p)							\
-	 (((uint64_t)((p)[0]))     | ((uint64_t)((p)[1])<< 8) |		\
-	  ((uint64_t)((p)[2])<<16) | ((uint64_t)((p)[3])<<24) |		\
-	  ((uint64_t)((p)[4])<<32) | ((uint64_t)((p)[5])<<40) |		\
-	  ((uint64_t)((p)[6])<<48) | ((uint64_t)((p)[7])<<56))
-
-# define STORE64_LE(p, v) do {						\
-	(p)[0] = (uint8_t)(v);						\
-	(p)[1] = (uint8_t)((v)>> 8);					\
-	(p)[2] = (uint8_t)((v)>>16);					\
-	(p)[3] = (uint8_t)((v)>>24);					\
-	(p)[4] = (uint8_t)((v)>>32);					\
-	(p)[5] = (uint8_t)((v)>>40);					\
-	(p)[6] = (uint8_t)((v)>>48);					\
-	(p)[7] = (uint8_t)((v)>>56);					\
-} while (0)
-
-#endif
 
 #define KEYSCHEDULE_PARITY 0x1BD11BDAA9FC1A22ULL
 
@@ -69,14 +45,14 @@ void
 threefish_expand_key(uint64_t ks[9], uint8_t k[64])
 {
 
-	ks[0] = LOAD64_LE(&k[ 0]);
-	ks[1] = LOAD64_LE(&k[ 8]);
-	ks[2] = LOAD64_LE(&k[16]);
-	ks[3] = LOAD64_LE(&k[24]);
-	ks[4] = LOAD64_LE(&k[32]);
-	ks[5] = LOAD64_LE(&k[40]);
-	ks[6] = LOAD64_LE(&k[48]);
-	ks[7] = LOAD64_LE(&k[56]);
+	ks[0] = le64dec(&k[ 0]);
+	ks[1] = le64dec(&k[ 8]);
+	ks[2] = le64dec(&k[16]);
+	ks[3] = le64dec(&k[24]);
+	ks[4] = le64dec(&k[32]);
+	ks[5] = le64dec(&k[40]);
+	ks[6] = le64dec(&k[48]);
+	ks[7] = le64dec(&k[56]);
 	ks[8] = KEYSCHEDULE_PARITY ^ ks[0] ^ ks[1] ^ ks[2] ^ ks[3] ^ ks[4] ^
 			ks[5] ^ ks[6] ^ ks[7];
 }
@@ -84,19 +60,18 @@ threefish_expand_key(uint64_t ks[9], uint8_t k[64])
 #define ROTL64(x, n) (((x) << (n)) | ((x) >> (64 - (n))))
 #define ROTR64(x, n) (((x) >> (n)) | ((x) << (64 - (n))))
 
-/* Inlining this function makes it 3x slower. */
-void __attribute__((noinline))
+void
 threefish_encrypt_block(uint64_t ks[9], uint64_t ts[3],
 		uint8_t in[64], uint8_t out[64])
 {
-	uint64_t x0 = LOAD64_LE(&in[ 0]);
-	uint64_t x1 = LOAD64_LE(&in[ 8]);
-	uint64_t x2 = LOAD64_LE(&in[16]);
-	uint64_t x3 = LOAD64_LE(&in[24]);
-	uint64_t x4 = LOAD64_LE(&in[32]);
-	uint64_t x5 = LOAD64_LE(&in[40]);
-	uint64_t x6 = LOAD64_LE(&in[48]);
-	uint64_t x7 = LOAD64_LE(&in[56]);
+	uint64_t x0 = le64dec(&in[ 0]);
+	uint64_t x1 = le64dec(&in[ 8]);
+	uint64_t x2 = le64dec(&in[16]);
+	uint64_t x3 = le64dec(&in[24]);
+	uint64_t x4 = le64dec(&in[32]);
+	uint64_t x5 = le64dec(&in[40]);
+	uint64_t x6 = le64dec(&in[48]);
+	uint64_t x7 = le64dec(&in[56]);
 	
 #define MIX(a, b, rotk) ((a) += (b), (b) = ROTL64((b), (rotk)) ^ (a))
 
@@ -140,29 +115,28 @@ threefish_encrypt_block(uint64_t ks[9], uint64_t ts[3],
 #undef EI
 #undef ER
 
-	STORE64_LE(&out[ 0], x0);
-	STORE64_LE(&out[ 8], x1);
-	STORE64_LE(&out[16], x2);
-	STORE64_LE(&out[24], x3);
-	STORE64_LE(&out[32], x4);
-	STORE64_LE(&out[40], x5);
-	STORE64_LE(&out[48], x6);
-	STORE64_LE(&out[56], x7);
+	le64enc(&out[ 0], x0);
+	le64enc(&out[ 8], x1);
+	le64enc(&out[16], x2);
+	le64enc(&out[24], x3);
+	le64enc(&out[32], x4);
+	le64enc(&out[40], x5);
+	le64enc(&out[48], x6);
+	le64enc(&out[56], x7);
 }
 
-/* Inlining this function makes it 3x slower. */
-void __attribute__((noinline))
+void
 threefish_decrypt_block(uint64_t ks[9], uint64_t ts[3],
 		uint8_t in[64], uint8_t out[64])
 {
-	uint64_t x0 = LOAD64_LE(&in[ 0]);
-	uint64_t x1 = LOAD64_LE(&in[ 8]);
-	uint64_t x2 = LOAD64_LE(&in[16]);
-	uint64_t x3 = LOAD64_LE(&in[24]);
-	uint64_t x4 = LOAD64_LE(&in[32]);
-	uint64_t x5 = LOAD64_LE(&in[40]);
-	uint64_t x6 = LOAD64_LE(&in[48]);
-	uint64_t x7 = LOAD64_LE(&in[56]);
+	uint64_t x0 = le64dec(&in[ 0]);
+	uint64_t x1 = le64dec(&in[ 8]);
+	uint64_t x2 = le64dec(&in[16]);
+	uint64_t x3 = le64dec(&in[24]);
+	uint64_t x4 = le64dec(&in[32]);
+	uint64_t x5 = le64dec(&in[40]);
+	uint64_t x6 = le64dec(&in[48]);
+	uint64_t x7 = le64dec(&in[56]);
 	
 #define UNMIX(a, b, rotk) ((b) = ROTR64((b) ^ ((a)), (rotk)), (a) -= (b))
 
@@ -206,12 +180,12 @@ threefish_decrypt_block(uint64_t ks[9], uint64_t ts[3],
 #undef DI
 #undef DR
 
-	STORE64_LE(&out[ 0], x0);
-	STORE64_LE(&out[ 8], x1);
-	STORE64_LE(&out[16], x2);
-	STORE64_LE(&out[24], x3);
-	STORE64_LE(&out[32], x4);
-	STORE64_LE(&out[40], x5);
-	STORE64_LE(&out[48], x6);
-	STORE64_LE(&out[56], x7);
+	le64enc(&out[ 0], x0);
+	le64enc(&out[ 8], x1);
+	le64enc(&out[16], x2);
+	le64enc(&out[24], x3);
+	le64enc(&out[32], x4);
+	le64enc(&out[40], x5);
+	le64enc(&out[48], x6);
+	le64enc(&out[56], x7);
 }
