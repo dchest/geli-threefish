@@ -1,6 +1,5 @@
 /*-
  * Copyright (c) 2005-2011 Pawel Jakub Dawidek <pawel@dawidek.net>
- * Copyright (c) 2012 Dmitry Chestnykh <dmitry@codingrobots.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

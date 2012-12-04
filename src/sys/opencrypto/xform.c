@@ -731,7 +731,7 @@ cml_zerokey(u_int8_t **sched)
 }
 
 /*
- * Threefish (with swapped encryption/decryption.
+ * Threefish (with swapped encryption/decryption).
  */
 struct threefish_ctx {
 	u_int64_t ks[9];
