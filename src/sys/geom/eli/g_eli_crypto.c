@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/geom/eli/g_eli_crypto.c 213072 2010-09-23 12:02:08Z pjd $");
 
 #include <sys/param.h>
 #ifdef _KERNEL
@@ -72,17 +72,9 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	KASSERT(algo != CRYPTO_AES_XTS,
 	    ("%s: CRYPTO_AES_XTS unexpected here", __func__));
 
-	if (algo == CRYPTO_THREEFISH) {
-		/* Use AES-CBC with 256-bit key for metadata encryption. */
-		algo = CRYPTO_AES_CBC;
-		keysize = 256;
-	}
-	
 	bzero(&cri, sizeof(cri));
 	cri.cri_alg = algo;
 	cri.cri_key = __DECONST(void *, key);
-	if (keysize == 512)
-		keysize = 256;
 	cri.cri_klen = keysize;
 	error = crypto_newsession(&sid, &cri, CRYPTOCAP_F_SOFTWARE);
 	if (error != 0)
@@ -148,12 +140,6 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	int outsize;
 
 	assert(algo != CRYPTO_AES_XTS);
-	
-	if (algo == CRYPTO_THREEFISH) {
-		/* Use AES-CBC with 256-bit key for metadata encryption. */
-		algo = CRYPTO_AES_CBC;
-		keysize = 256;
-	}
 
 	switch (algo) {
 	case CRYPTO_NULL_CBC:

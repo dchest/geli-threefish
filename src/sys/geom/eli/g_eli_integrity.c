@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/geom/eli/g_eli_integrity.c 235419 2012-05-13 23:27:06Z eadler $");
 
 #include <sys/param.h>
 #include <sys/systm.h>

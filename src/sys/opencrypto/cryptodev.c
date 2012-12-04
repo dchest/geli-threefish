@@ -33,7 +33,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/opencrypto/cryptodev.c 241394 2012-10-10 08:36:38Z kevlo $");
 
 #include "opt_compat.h"
 
@@ -433,9 +433,6 @@ cryptof_ioctl(
  		case CRYPTO_CAMELLIA_CBC:
  			txform = &enc_xform_camellia;
  			break;
-		case CRYPTO_THREEFISH:
-			txform = &enc_xform_threefish;
-			break;
 		default:
 			return (EINVAL);
 		}

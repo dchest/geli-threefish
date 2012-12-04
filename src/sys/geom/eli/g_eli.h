@@ -1,6 +1,5 @@
 /*-
  * Copyright (c) 2005-2011 Pawel Jakub Dawidek <pawel@dawidek.net>
- * Copyright (c) 2012 Dmitry Chestnykh <dmitry@codingrobots.com>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $FreeBSD$
+ * $FreeBSD: head/sys/geom/eli/g_eli.h 238116 2012-07-04 17:54:17Z pjd $
  */
 
 #ifndef	_G_ELI_H_
@@ -401,8 +400,6 @@ g_eli_str2ealgo(const char *name)
 		return (CRYPTO_3DES_CBC);
 	else if (strcasecmp("3des-cbc", name) == 0)
 		return (CRYPTO_3DES_CBC);
-	else if (strcasecmp("threefish", name) == 0)
-		return (CRYPTO_THREEFISH);
 	return (CRYPTO_ALGORITHM_MIN - 1);
 }
 
@@ -442,8 +439,6 @@ g_eli_algo2str(u_int algo)
 		return ("CAMELLIA-CBC");
 	case CRYPTO_3DES_CBC:
 		return ("3DES-CBC");
-	case CRYPTO_THREEFISH:
-		return ("Threefish");
 	case CRYPTO_MD5_HMAC:
 		return ("HMAC/MD5");
 	case CRYPTO_SHA1_HMAC:
@@ -544,10 +539,6 @@ g_eli_keylen(u_int algo, u_int keylen)
 	case CRYPTO_3DES_CBC:
 		if (keylen == 0 || keylen == 192)
 			return (192);
-		return (0);
-	case CRYPTO_THREEFISH:
-		if (keylen == 0 || keylen == 512)
-			return (512);
 		return (0);
 	default:
 		return (0);

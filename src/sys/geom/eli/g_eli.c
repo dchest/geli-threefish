@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/geom/eli/g_eli.c 238116 2012-07-04 17:54:17Z pjd $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -550,7 +550,6 @@ g_eli_crypto_ivgen(struct g_eli_softc *sc, off_t offset, u_char *iv,
 
 	switch (sc->sc_ealgo) {
 	case CRYPTO_AES_XTS:
-	case CRYPTO_THREEFISH:
 		bcopy(off, iv, sizeof(off));
 		bzero(iv + sizeof(off), size - sizeof(off));
 		break;

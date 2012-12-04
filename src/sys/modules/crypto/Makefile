@@ -1,4 +1,4 @@
-# $FreeBSD: release/9.1.0/sys/modules/crypto/Makefile 212496 2010-09-12 16:28:26Z ivoras $
+# $FreeBSD: head/sys/modules/crypto/Makefile 212496 2010-09-12 16:28:26Z ivoras $
 
 .PATH:	${.CURDIR}/../../opencrypto
 .PATH:	${.CURDIR}/../../crypto
@@ -18,6 +18,4 @@ SRCS	+= sha1.c sha2.c
 SRCS	+= opt_param.h cryptodev_if.h bus_if.h device_if.h
 SRCS	+= opt_ddb.h opt_kdtrace.h
 SRCS	+= camellia.c camellia-api.c
-SRCS    += threefish.c
-
 .include <bsd.kmod.mk>

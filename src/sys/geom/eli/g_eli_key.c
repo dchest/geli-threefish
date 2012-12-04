@@ -25,7 +25,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/geom/eli/g_eli_key.c 238114 2012-07-04 17:43:25Z pjd $");
 
 #include <sys/param.h>
 #ifdef _KERNEL
@@ -226,7 +226,6 @@ g_eli_mkey_propagate(struct g_eli_softc *sc, const unsigned char *mkey)
 	 */
 	switch (sc->sc_ealgo) {
 	case CRYPTO_AES_XTS:
-	case CRYPTO_THREEFISH:
 		break;
 	default:
 		SHA256_Init(&sc->sc_ivctx);

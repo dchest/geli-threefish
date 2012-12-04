@@ -1,4 +1,4 @@
-/*	$FreeBSD$	*/
+/*	$FreeBSD: head/sys/opencrypto/xform.h 219026 2011-02-25 09:29:32Z vanhu $	*/
 /*	$OpenBSD: xform.h,v 1.8 2001/08/28 12:20:43 ben Exp $	*/
 
 /*-
@@ -85,7 +85,6 @@ extern struct enc_xform enc_xform_rijndael128;
 extern struct enc_xform enc_xform_aes_xts;
 extern struct enc_xform enc_xform_arc4;
 extern struct enc_xform enc_xform_camellia;
-extern struct enc_xform enc_xform_threefish;
 
 extern struct auth_hash auth_hash_null;
 extern struct auth_hash auth_hash_key_md5;

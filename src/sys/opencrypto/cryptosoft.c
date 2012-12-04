@@ -23,7 +23,7 @@
  */
 
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
+__FBSDID("$FreeBSD: head/sys/opencrypto/cryptosoft.c 215295 2010-11-14 13:09:32Z marius $");
 
 #include <sys/param.h>
 #include <sys/systm.h>
@@ -741,9 +741,6 @@ swcr_newsession(device_t dev, u_int32_t *sid, struct cryptoini *cri)
 		case CRYPTO_CAMELLIA_CBC:
 			txf = &enc_xform_camellia;
 			goto enccommon;
-		case CRYPTO_THREEFISH:
-			txf = &enc_xform_threefish;
-			goto enccommon;
 		case CRYPTO_NULL_CBC:
 			txf = &enc_xform_null;
 			goto enccommon;
@@ -901,7 +898,6 @@ swcr_freesession(device_t dev, u_int64_t tid)
 		case CRYPTO_RIJNDAEL128_CBC:
 		case CRYPTO_AES_XTS:
 		case CRYPTO_CAMELLIA_CBC:
-		case CRYPTO_THREEFISH:
 		case CRYPTO_NULL_CBC:
 			txf = swd->sw_exf;
 
@@ -1016,7 +1012,6 @@ swcr_process(device_t dev, struct cryptop *crp, int hint)
 		case CRYPTO_RIJNDAEL128_CBC:
 		case CRYPTO_AES_XTS:
 		case CRYPTO_CAMELLIA_CBC:
-		case CRYPTO_THREEFISH:
 			if ((crp->crp_etype = swcr_encdec(crd, sw,
 			    crp->crp_buf, crp->crp_flags)) != 0)
 				goto done;
@@ -1110,7 +1105,6 @@ swcr_attach(device_t dev)
 	REGISTER(CRYPTO_RIJNDAEL128_CBC);
 	REGISTER(CRYPTO_AES_XTS);
  	REGISTER(CRYPTO_CAMELLIA_CBC);
- 	REGISTER(CRYPTO_THREEFISH);
 	REGISTER(CRYPTO_DEFLATE_COMP);
 #undef REGISTER
 
