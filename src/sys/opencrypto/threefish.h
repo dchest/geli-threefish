@@ -30,7 +30,6 @@
 #ifdef _KERNEL
 #include <sys/types.h>
 #else
-#include <stddef.h>
 #include <stdint.h>
 #endif
 
