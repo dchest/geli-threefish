@@ -433,6 +433,9 @@ cryptof_ioctl(
  		case CRYPTO_CAMELLIA_CBC:
  			txform = &enc_xform_camellia;
  			break;
+		case CRYPTO_THREEFISH:
+			txform = &enc_xform_threefish;
+			break;
 		default:
 			return (EINVAL);
 		}

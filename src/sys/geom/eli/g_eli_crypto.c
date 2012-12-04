@@ -78,6 +78,8 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	bzero(&cri, sizeof(cri));
 	cri.cri_alg = algo;
 	cri.cri_key = __DECONST(void *, key);
+	if (keysize == 512)
+		keysize = 256;
 	cri.cri_klen = keysize;
 	error = crypto_newsession(&sid, &cri, CRYPTOCAP_F_SOFTWARE);
 	if (error != 0)
@@ -150,6 +152,7 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 		type = EVP_enc_null();
 		break;
 	case CRYPTO_AES_CBC:
+		printf("Keysize == %d\n", (int)keysize); 
 		switch (keysize) {
 		case 128:
 			type = EVP_aes_128_cbc();
@@ -158,8 +161,11 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 			type = EVP_aes_192_cbc();
 			break;
 		case 256:
+			type = EVP_aes_256_cbc();
+			break;
 		case 512:
 			type = EVP_aes_256_cbc();
+			keysize = 256;
 			break;
 		default:
 			return (EINVAL);
