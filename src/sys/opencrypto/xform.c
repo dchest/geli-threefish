@@ -738,7 +738,7 @@ cml_zerokey(u_int8_t **sched)
  * is block counter.
  *
  * Encryption and decryption operations are swapped as recommended
- * by the Skein paper to achive better performance for the more
+ * by the Skein paper to achieve better performance for the more
  * common operation--decryption.
  */
 struct threefish_ctx {
