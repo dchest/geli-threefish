@@ -6,6 +6,8 @@
 kernel modules to support disk encryption with
 [http://en.wikipedia.org/wiki/Threefish | Threefish-512] algorithm.
 
+<i>This software is experimental. Use at your own risk!</i>
+
 <h2>Why?</h2>
 
 I wanted to install FreeBSD into the encrypted disk on my Atom-based netbook,
