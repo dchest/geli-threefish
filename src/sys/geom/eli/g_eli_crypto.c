@@ -158,6 +158,7 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 			type = EVP_aes_192_cbc();
 			break;
 		case 256:
+		case 512:
 			type = EVP_aes_256_cbc();
 			break;
 		default:

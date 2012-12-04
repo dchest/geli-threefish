@@ -27,52 +27,21 @@
 #ifndef _THREEFISH_H_
 #define _THREEFISH_H_
 
+#ifdef _KERNEL
+#include <sys/cdefs.h>
+#include <sys/param.h>
+#include <sys/types.h>
+#else
 #include <stddef.h>
 #include <stdint.h>
+#endif
 
-/*
- * threefish_encrypt(key, sectornum, in, inlen, out)
- * 
- * Encrypt data of length inlen from in to out using 64-byte key
- * and 64-bit sector number. Data length must be a multiple of 64.
- *
- * Data is encrypted using the "tweak counter mode": for each 64-byte block
- * of data, the given 64-bit sector number is combined with 64-bit block
- * counter to get the full 128-bit tweak for Threefish, which is then used,
- * along with the key, for encryption.
- */
-void threefish_encrypt(const uint8_t[64], const uint64_t, const uint8_t *,
-		size_t, uint8_t *);
+void threefish_expand_key(uint64_t[9], uint8_t[64]);
 
-/*
- * threefish_encrypt(key, sectornum, in, inlen, out)
- * 
- * Decrypt data of length inlen from in to out using 64-byte key
- * and 64-bit sector number. Data length must be a multiple of 64.
- */
-void threefish_decrypt(const uint8_t[64], const uint64_t, const uint8_t *,
-		size_t, uint8_t *);
+void threefish_encrypt_block(uint64_t[9], uint64_t[3],
+		uint8_t[64], uint8_t[64]);
 
-/*
- * Fishthree is Threefish with encryption and decryption swapped.
- *
- * Since encryption in Threefish is faster than decryption, the Skein paper
- * recommends swapping the two operations to achieve better performance
- * if decryption is more common that encryption.
- */
-#define fishthree_encrypt threefish_decrypt
-#define fishthree_decrypt threefish_encrypt
-
-/*
- * Low-level operations.
- */
-
-void threefish_expand_key(uint64_t[9], const uint8_t[64]);
-
-void threefish_encrypt_block(const uint64_t[9], const uint64_t[3],
-		const uint8_t[64], uint8_t[64]);
-
-void threefish_decrypt_block(const uint64_t[9], const uint64_t[3],
-		const uint8_t[64], uint8_t[64]);
+void threefish_decrypt_block(uint64_t[9], uint64_t[3],
+		uint8_t[64], uint8_t[64]);
 
 #endif /* !_THREEFISH_H_ */

@@ -66,7 +66,7 @@ static const int RotK[8][4] = {
 };
 
 void
-threefish_expand_key(uint64_t ks[9], const uint8_t k[64])
+threefish_expand_key(uint64_t ks[9], uint8_t k[64])
 {
 
 	ks[0] = LOAD64_LE(&k[ 0]);
@@ -86,8 +86,8 @@ threefish_expand_key(uint64_t ks[9], const uint8_t k[64])
 
 /* Inlining this function makes it 3x slower. */
 void __attribute__((noinline))
-threefish_encrypt_block(const uint64_t ks[9], const uint64_t ts[3],
-		const uint8_t in[64], uint8_t out[64])
+threefish_encrypt_block(uint64_t ks[9], uint64_t ts[3],
+		uint8_t in[64], uint8_t out[64])
 {
 	uint64_t x0 = LOAD64_LE(&in[ 0]);
 	uint64_t x1 = LOAD64_LE(&in[ 8]);
@@ -152,8 +152,8 @@ threefish_encrypt_block(const uint64_t ks[9], const uint64_t ts[3],
 
 /* Inlining this function makes it 3x slower. */
 void __attribute__((noinline))
-threefish_decrypt_block(const uint64_t ks[9], const uint64_t ts[3],
-		const uint8_t in[64], uint8_t out[64])
+threefish_decrypt_block(uint64_t ks[9], uint64_t ts[3],
+		uint8_t in[64], uint8_t out[64])
 {
 	uint64_t x0 = LOAD64_LE(&in[ 0]);
 	uint64_t x1 = LOAD64_LE(&in[ 8]);
@@ -215,60 +215,6 @@ threefish_decrypt_block(const uint64_t ks[9], const uint64_t ts[3],
 	STORE64_LE(&out[48], x6);
 	STORE64_LE(&out[56], x7);
 }
-
-/* Make sure the compiler won't optimize this away. */
-static void __attribute__((noinline))
-clear_memory(void *p, size_t len)
-{
-	size_t i;
-	uint8_t *b = (uint8_t *)p;
-
-	for (i = 0; i < len; i++)
-		b[i] = 0;
-}
-
-void
-threefish_encrypt(const uint8_t key[64], uint64_t sectornum, const uint8_t *in,
-		size_t inlen, uint8_t *out)
-{
-	uint64_t ks[9], ts[3];
-
-	expand_key(ks, key);
-
-	ts[0] = sectornum;
-	ts[1] = 0;	/* 2nd part of tweak is block counter */
-
-	while (inlen > 0) {
-		ts[2] = ts[0] ^ ts[1];
-		encrypt_block(ks, ts, in, out);
-		ts[1]++;	/* increment block counter */
-
-		in += 64; out += 64; inlen -= 64;
-	}
-	clear_memory(ks, sizeof(ks));
-}
-
-void
-threefish_decrypt(const uint8_t key[64], uint64_t sectornum, const uint8_t *in,
-		size_t inlen, uint8_t *out)
-{
-	uint64_t ks[9], ts[3];
-
-	expand_key(ks, key);
-
-	ts[0] = sectornum;
-	ts[1] = 0;	/* 2nd part of tweak is block counter */
-
-	while (inlen > 0) {
-		ts[2] = ts[0] ^ ts[1];
-		decrypt_block(ks, ts, in, out);
-		ts[1]++;	/* increment block counter */
-
-		in += 64; out += 64; inlen -= 64;
-	}
-	clear_memory(ks, sizeof(ks));
-}
-
 
 
 #if 0
