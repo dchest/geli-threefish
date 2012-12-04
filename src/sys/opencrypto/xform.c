@@ -731,11 +731,19 @@ cml_zerokey(u_int8_t **sched)
 }
 
 /*
- * Threefish (with swapped encryption/decryption).
+ * Threefish.
+ *  
+ * Threefish uses "tweak counter" mode, where the first 64-bit part
+ * of tweak is sector number (IV), and the last 64-bit part of tweak
+ * is block counter.
+ *
+ * Encryption and decryption operations are swapped as recommended
+ * by the Skein paper to achive better performance for the more
+ * common operation--decryption.
  */
 struct threefish_ctx {
-	u_int64_t ks[9];
-	u_int64_t ts[3];
+	u_int64_t ks[9];	/* expanded key   */
+	u_int64_t ts[3];	/* expanded tweak */
 };
 
 void
@@ -743,6 +751,7 @@ threefish_reinit(caddr_t key, u_int8_t *iv)
 {
 	struct threefish_ctx *ctx = (struct threefish_ctx *)key;
 
+	/* 1st part of tweak: IV is a little-endian sector number. */
 	ctx->ts[0] = (((u_int64_t)(iv[0])) |
 			((u_int64_t)(iv[1])<< 8) |
 			((u_int64_t)(iv[2])<<16) |
@@ -751,6 +760,8 @@ threefish_reinit(caddr_t key, u_int8_t *iv)
 			((u_int64_t)(iv[5])<<40) |
 			((u_int64_t)(iv[6])<<48) |
 			((u_int64_t)(iv[7])<<56));
+
+	/* 2nd part of tweak: block counter, initialized to zero. */
 	ctx->ts[1] = 0;
 }
 
@@ -758,10 +769,11 @@ static void
 threefish_crypt(struct threefish_ctx *ctx, u_int8_t *data, u_int do_encrypt)
 {
 
+	/* Do tweak schedule. */
 	ctx->ts[2] = ctx->ts[0] ^ ctx->ts[1];
 
 	/*
-	 * IMPORTANT NOTE: encryption and decryption are swapped for better
+	 * IMPORTANT: encryption and decryption are swapped for better
 	 * performance of decryption.
 	 */
 	if (do_encrypt)
