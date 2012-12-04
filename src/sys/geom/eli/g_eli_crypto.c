@@ -72,9 +72,12 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	KASSERT(algo != CRYPTO_AES_XTS,
 	    ("%s: CRYPTO_AES_XTS unexpected here", __func__));
 
-	KASSERT(algo != CRYPTO_THREEFISH,
-	    ("%s: CRYPTO_THREEFISH unexpected here", __func__));
-
+	if (algo == CRYPTO_THREEFISH) {
+		/* Use AES-CBC with 256-bit key for metadata encryption. */
+		algo = CRYPTO_AES_CBC;
+		keysize = 256;
+	}
+	
 	bzero(&cri, sizeof(cri));
 	cri.cri_alg = algo;
 	cri.cri_key = __DECONST(void *, key);
@@ -145,14 +148,18 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	int outsize;
 
 	assert(algo != CRYPTO_AES_XTS);
-	assert(algo != CRYPTO_THREEFISH);
+	
+	if (algo == CRYPTO_THREEFISH) {
+		/* Use AES-CBC with 256-bit key for metadata encryption. */
+		algo = CRYPTO_AES_CBC;
+		keysize = 256;
+	}
 
 	switch (algo) {
 	case CRYPTO_NULL_CBC:
 		type = EVP_enc_null();
 		break;
 	case CRYPTO_AES_CBC:
-		printf("Keysize == %d\n", (int)keysize); 
 		switch (keysize) {
 		case 128:
 			type = EVP_aes_128_cbc();
@@ -162,10 +169,6 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 			break;
 		case 256:
 			type = EVP_aes_256_cbc();
-			break;
-		case 512:
-			type = EVP_aes_256_cbc();
-			keysize = 256;
 			break;
 		default:
 			return (EINVAL);
@@ -229,7 +232,7 @@ g_eli_crypto_encrypt(u_int algo, u_char *data, size_t datasize,
 {
 
 	/* We prefer AES-CBC for metadata protection. */
-	if (algo == CRYPTO_AES_XTS || algo == CRYPTO_THREEFISH)
+	if (algo == CRYPTO_AES_XTS)
 		algo = CRYPTO_AES_CBC;
 
 	return (g_eli_crypto_cipher(algo, 1, data, datasize, key, keysize));
@@ -241,7 +244,7 @@ g_eli_crypto_decrypt(u_int algo, u_char *data, size_t datasize,
 {
 
 	/* We prefer AES-CBC for metadata protection. */
-	if (algo == CRYPTO_AES_XTS || algo == CRYPTO_THREEFISH)
+	if (algo == CRYPTO_AES_XTS)
 		algo = CRYPTO_AES_CBC;
 
 	return (g_eli_crypto_cipher(algo, 0, data, datasize, key, keysize));

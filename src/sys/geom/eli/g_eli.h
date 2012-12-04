@@ -519,7 +519,6 @@ g_eli_keylen(u_int algo, u_int keylen)
 		case 128:
 		case 192:
 		case 256:
-		case 512:
 			return (keylen);
 		default:
 			return (0);
