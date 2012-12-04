@@ -226,6 +226,7 @@ g_eli_mkey_propagate(struct g_eli_softc *sc, const unsigned char *mkey)
 	 */
 	switch (sc->sc_ealgo) {
 	case CRYPTO_AES_XTS:
+	case CRYPTO_THREEFISH:
 		break;
 	default:
 		SHA256_Init(&sc->sc_ivctx);
