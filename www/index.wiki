@@ -6,7 +6,7 @@
 kernel modules to support disk encryption with
 [http://en.wikipedia.org/wiki/Threefish | Threefish-512] algorithm.
 
-<i>This software is experimental. Use at your own risk!</i>
+<i>This software is experimental. Use at your own risk! Tested on FreeBSD 9.1.</i>
 
 <h2>Why?</h2>
 
