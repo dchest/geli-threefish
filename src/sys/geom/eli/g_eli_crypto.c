@@ -72,6 +72,12 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	KASSERT(algo != CRYPTO_AES_XTS,
 	    ("%s: CRYPTO_AES_XTS unexpected here", __func__));
 
+	if (algo == CRYPTO_THREEFISH) {
+		/* Use AES-CBC with 256-bit key for metadata encryption. */
+		algo = CRYPTO_AES_CBC;
+		keysize = 256;
+	}
+	
 	bzero(&cri, sizeof(cri));
 	cri.cri_alg = algo;
 	cri.cri_key = __DECONST(void *, key);
@@ -140,6 +146,12 @@ g_eli_crypto_cipher(u_int algo, int enc, u_char *data, size_t datasize,
 	int outsize;
 
 	assert(algo != CRYPTO_AES_XTS);
+	
+	if (algo == CRYPTO_THREEFISH) {
+		/* Use AES-CBC with 256-bit key for metadata encryption. */
+		algo = CRYPTO_AES_CBC;
+		keysize = 256;
+	}
 
 	switch (algo) {
 	case CRYPTO_NULL_CBC:
