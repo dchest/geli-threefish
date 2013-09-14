@@ -37,7 +37,7 @@ You don't want to use these patches if:
 
 ## How to install
 
-See (Installation instructions)[INSTALL.md].
+See [Installation instructions](INSTALL.md).
 
 or, "I know what I'm doing, [just gimme the patch](https://github.com/dchest/geli-threefish/compare/freebsd...master.patch)"!
 
