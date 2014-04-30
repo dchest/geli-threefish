@@ -4,7 +4,7 @@
 
 **geli-threefish** is a set of patches for FreeBSD
 [geom-eli](http://www.freebsd.org/cgi/man.cgi?query=geli) and
-[crypto](http://www.frecrypto](ebsd.org/cgi/man.cgi?query=crypto&apropos=0&sektion=4)
+[crypto](http://www.freebsd.org/cgi/man.cgi?query=crypto&apropos=0&sektion=4)
 kernel modules to support disk encryption with
 [Threefish-512](http://en.wikipedia.org/wiki/Threefish) algorithm.
 
